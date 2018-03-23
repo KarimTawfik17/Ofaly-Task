@@ -21,7 +21,7 @@ def usersPage():
     users = [i.serialize for i in session.query(Users).all()]
     page = int(request.args.get('page', 0))
     user_id = ""
-    link = 'localhost:5000/users/%s/param?page=%s'
+    link = 'localhost:5000/users%s/param?page=%s'
     return paginate(users, page, user_id, link)
 
 
@@ -57,7 +57,10 @@ def getUser(user_id):
 def postsPage(user_id):
     if request.args.get('local') == 'true':
         return jsonify(posts=[i.serialize for i in session.query(Posts).filter_by(user_id=user_id).all()])
-    posts = getPosts()
+    try :
+    	posts = getPosts()
+    except KeyError:
+   		return jsonify(error="access_token expired, contact : Karim.Tawfik17@gmail.com")
     try:
         latest_post_id = session.query(
             Posts).filter_by(user_id=user_id).first().id
@@ -98,7 +101,7 @@ def postsPage(user_id):
 def getPosts(limit=25):
     h = Http()
     #this access_token might be expired ,, contact me for another one
-    access_token = 'EAACEdEose0cBAEn2SoQi7raebvLHBSMsf94lqoT9YTc7gyy9Mm6nGOTcF2yi9lDroma0AtskZBEa4ov2zgRRwQq04SgDiqO6OLcgjaZCTqkgqOlEGu4QtZAZCUvswzVtSbP6qpSZA7ZCfKpllwqVvWKX8CPdyNIcan8yfUdZCZC30OASZCZAxpMxh6zIWXAaakjS8ZD'
+    access_token = 'EAACEdEose0cBAKgVNw6Ibi6oxR6E4DshpDLYfTttUPY0iZC8wGrWPTi9k3V82ZBmWCet1ZAoO6OZChZBubIgqZA9ThsSeCXimSNGgZAWQM5X5jyp6VRStAP8eFWKZCEOxB3hXE8oJpHiVOTWHibLKYN9LLddvLIwOGFAlmwj0OcO0OA9kpZAZAIBZCzkqtZAI0cZAlKvCXGcv0GKQ8i0PhBXg7ZA8gUZAOSFxINyZBYZD'
     url = "https://graph.facebook.com/v2.12/me?fields=posts.limit(%s)&access_token=%s" % (limit,
                                                                                           access_token)
     response, content = h.request(url, 'GET')
